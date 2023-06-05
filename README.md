@@ -5,8 +5,11 @@ WebService created to deliver Ads based on **used ID**, **User Country** and pla
 
 This project uses a fakeDB.
 
-
 ## Paths
+
+## Used Libraries
+- Golang Gin
+- Go Swaggo 
 
 
 

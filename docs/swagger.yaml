@@ -1,0 +1,44 @@
+definitions:
+  models.AdResponse:
+    properties:
+      id:
+        type: string
+      videoURL:
+        type: string
+    type: object
+  models.RequestAd:
+    properties:
+      countryCode:
+        type: string
+      language:
+        type: string
+      userID:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /ads:
+    post:
+      description: Receive an ad based on input paramenters
+      parameters:
+      - description: Request Ad
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.RequestAd'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AdResponse'
+        "400":
+          description: Bad Request
+          schema: {}
+      summary: Receive Ad
+      tags:
+      - Ads
+swagger: "2.0"
