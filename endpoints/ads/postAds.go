@@ -1,29 +1,41 @@
 package ads
 
 import (
-	"PlayerWon/controllers/ads/models"
+	"PlayerWon/controllers/ads"
 	"PlayerWon/endpoints/ads/utils"
+	"PlayerWon/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type PostAds struct{}
+type PostAds struct {
+	controller ads.IAdsController
+}
 
-//	@Summary		Receive Ad
-//	@Tags			Ads
-//	@Description	Receive an ad based on input paramenters
-//	@Produce		json
+// @Summary		Receive Ad
+// @Tags			Ads
+// @Description	Receive an ad based on input paramenters
+// @Produce		json
 //
-//	@Param			body	body		models.RequestAd	true	"Request Ad"
-//	@Success		200		{object}	models.AdResponse
-//	@Failure		400		{object}	error
+// @Param			body	body		models.RequestAd	true	"Request Ad"
+// @Success		200		{object}	models.AdResponse
+// @Failure		400		{object}	error
 //
-//	@Router			/ads [post]
+// @Router			/ads [post]
 func (endpoint *PostAds) GetAd(c *gin.Context) {
 	var requestAd models.RequestAd
 	if err := c.ShouldBindJSON(&requestAd); err != nil {
 		c.AbortWithError(http.StatusBadRequest, utils.AdRequestInvalid)
 	}
+
+	adData, err := endpoint.controller.ObtainNewAd(requestAd)
+
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, adData)
 
 }

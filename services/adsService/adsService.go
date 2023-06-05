@@ -1,7 +1,7 @@
 package adsservice
 
 import (
-	"PlayerWon/services/adsService/models"
+	"PlayerWon/models"
 	"encoding/json"
 	"net/http"
 )

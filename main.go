@@ -1,8 +1,10 @@
 package main
 
 import (
+	dalbase "PlayerWon/dal/dalBase"
 	docs "PlayerWon/docs"
 	"PlayerWon/endpoints/ads"
+	"database/sql"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -13,16 +15,21 @@ func main() {
 	r := gin.Default() // Creates gin default engine
 
 	// initialize API endpoints
-	initializeEndpoints(r)
+	db := initializeEndpoints(r)
+	defer db.Close()
 
 	r.Run()
 }
 
-func initializeEndpoints(r *gin.Engine) {
+func initializeEndpoints(r *gin.Engine) *sql.DB {
 
+	// database
+	db := dalbase.GetDB()
 	// Project Endpoints
-	ads.Routes(r)
+	ads.Routes(r, db)
 
 	docs.SwaggerInfo.Description = "Challenge Documentation"
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	return db
 }

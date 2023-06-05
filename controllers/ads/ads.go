@@ -1,10 +1,10 @@
 package ads
 
 import (
-	"PlayerWon/controllers/ads/models"
 	"PlayerWon/controllers/ads/utils"
+	"PlayerWon/dal/ads"
+	"PlayerWon/models"
 	adsservice "PlayerWon/services/adsService"
-	adsServiceModel "PlayerWon/services/adsService/models"
 )
 
 type IAdsController interface {
@@ -12,19 +12,20 @@ type IAdsController interface {
 }
 
 type AdsController struct {
-	adsService adsservice.IAdsService
+	AdsService adsservice.IAdsService
+	Dal        ads.IAdsDal
 }
 
 func (ac *AdsController) ObtainNewAd(requestData models.RequestAd) (models.AdResponse, error) {
 	adResponse := models.AdResponse{}
 
-	availableAds, err := ac.adsService.RequestAdFromServer()
+	availableAds, err := ac.AdsService.RequestAdFromServer()
 
 	if err != nil {
 		return adResponse, utils.UnableToGetAds
 	}
 
-	availableAd, err := GetAvaiableAdForUser(availableAds)
+	availableAd, err := ac.getAvaiableAdForUser(requestData.UserID, availableAds)
 
 	if err != nil {
 		return adResponse, utils.NoAvaiableAds
@@ -33,7 +34,35 @@ func (ac *AdsController) ObtainNewAd(requestData models.RequestAd) (models.AdRes
 	adResponse.ID = availableAd.ID
 	adResponse.VideoURL = availableAd.VideoURL
 
+	userVideo := &models.UserViewedAd{
+		UserID:  requestData.UserID,
+		VideoID: availableAd.ID,
+	}
+
+	go ac.Dal.RegisterNewAdForUser(*userVideo)
+
 	return adResponse, nil
 }
 
-func GetAvaiableAdForUser(availableAds []adsServiceModel.Ad) (adsServiceModel.Ad, error)
+func (ac *AdsController) getAvaiableAdForUser(userID string, availableAds []models.Ad) (*models.Ad, error) {
+	viewedVideos, err := ac.Dal.GetAdsViewedTodayByUser(userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, adVideo := range availableAds {
+		isVideoAvailable := true
+		for _, viewedVideo := range viewedVideos {
+			if viewedVideo == adVideo.ID {
+				isVideoAvailable = false
+			}
+		}
+
+		if isVideoAvailable {
+			return &adVideo, nil
+		}
+	}
+
+	return nil, utils.NoAvaiableAds
+}
