@@ -8,8 +8,13 @@ This project uses a fakeDB.
 ## Paths
 
 ## Used Libraries
-- Golang Gin
-- Go Swaggo 
+- [Gin](https://gin-gonic.com)
+- [RamSQL](https://github.com/proullon/ramsql)
+- [Swaggo](https://github.com/swaggo/swag)
+- [Mockery](https://github.com/vektra/mockery)
+- [Testify](https://github.com/stretchr/testify)
+- [fmt](https://pkg.go.dev/fmt)
+- [GolangCi-Lint](https://golangci-lint.run/)
 
 
 
