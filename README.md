@@ -14,6 +14,15 @@ This project uses an in memorySQLDB to avoid the need of implementing a DB.
 - [fmt](https://pkg.go.dev/fmt)
 - [GolangCi-Lint](https://golangci-lint.run/)
 
+## Project Architecture
+![BlockDiagram](/BlockDiagram.png)
+
+Each one of the modules execute an especific function:
+* Endpoint: Receives the request, prepare the data to be processed by the controller and returns the final result to the user.
+* Controller: Do the different operations needed to return the correct value, comunicates with the DAL if need to get data from database and connect with third party services.
+* DAL: Data Access Layer, it connects with the database, run different queries to get the required data, avoiding to do logic in this layer as much as possible.
+* AdService: Get Ads from the PlayerWon Server.
+* Clock: Get Current Time and parse the time from string to a time object.
 
 ## Paths
 | Request Type | Endpoint | Description |
