@@ -5,6 +5,9 @@ import (
 	"PlayerWon/dal/ads"
 	"PlayerWon/models"
 	adsservice "PlayerWon/services/adsService"
+	"PlayerWon/services/clock"
+
+	"golang.org/x/exp/slices"
 )
 
 type IAdsController interface {
@@ -14,6 +17,7 @@ type IAdsController interface {
 type AdsController struct {
 	AdsService adsservice.IAdsService
 	Dal        ads.IAdsDal
+	Clock      clock.IClock
 }
 
 func (ac *AdsController) ObtainNewAd(requestData models.RequestAd) (models.AdResponse, error) {
@@ -25,7 +29,7 @@ func (ac *AdsController) ObtainNewAd(requestData models.RequestAd) (models.AdRes
 		return adResponse, utils.UnableToGetAds
 	}
 
-	availableAd, err := ac.getAvaiableAdForUser(requestData.UserID, availableAds)
+	availableAd, err := ac.getAvaiableAdForUser(requestData, availableAds)
 
 	if err != nil {
 		return adResponse, utils.NoAvaiableAds
@@ -44,25 +48,48 @@ func (ac *AdsController) ObtainNewAd(requestData models.RequestAd) (models.AdRes
 	return adResponse, nil
 }
 
-func (ac *AdsController) getAvaiableAdForUser(userID string, availableAds []models.Ad) (*models.Ad, error) {
-	viewedVideos, err := ac.Dal.GetAdsViewedTodayByUser(userID)
+func (ac *AdsController) getAvaiableAdForUser(requestData models.RequestAd, availableAds []models.Ad) (*models.Ad, error) {
+	viewedVideos, err := ac.Dal.GetAdsViewedTodayByUser(requestData.UserID)
 
 	if err != nil {
 		return nil, err
 	}
 
 	for _, adVideo := range availableAds {
-		isVideoAvailable := true
-		for _, viewedVideo := range viewedVideos {
-			if viewedVideo == adVideo.ID {
-				isVideoAvailable = false
+		if !slices.Contains(viewedVideos, adVideo.ID) {
+			if ac.isVideoInUserRegionAndLanguage(adVideo, requestData) {
+				if ac.isVideoInWatchTime(adVideo) {
+					return &adVideo, nil
+				}
 			}
-		}
-
-		if isVideoAvailable {
-			return &adVideo, nil
 		}
 	}
 
 	return nil, utils.NoAvaiableAds
+}
+
+func (ac *AdsController) isVideoInWatchTime(adVideo models.Ad) bool {
+	currentTime := ac.Clock.Now().Hour()
+
+	// this means the video frame ends the next day
+	if adVideo.StartHour > adVideo.EndHour {
+		if currentTime >= adVideo.StartHour || currentTime < adVideo.EndHour {
+			return true
+		}
+	}
+
+	if currentTime >= adVideo.StartHour &&
+		currentTime < adVideo.EndHour {
+		return true
+	}
+
+	return false
+}
+
+func (ac *AdsController) isVideoInUserRegionAndLanguage(adVideo models.Ad, requestData models.RequestAd) bool {
+	if adVideo.Country == requestData.CountryCode &&
+		adVideo.Lang == requestData.Language {
+		return true
+	}
+	return false
 }

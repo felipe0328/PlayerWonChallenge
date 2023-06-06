@@ -2,6 +2,7 @@ package ads
 
 import (
 	"PlayerWon/models"
+	"PlayerWon/services/clock"
 	"database/sql"
 	"fmt"
 	"time"
@@ -14,10 +15,11 @@ type IAdsDal interface {
 
 type Ads struct {
 	*sql.DB
+	Clock clock.IClock
 }
 
 func (ad *Ads) RegisterNewAdForUser(userData models.UserViewedAd) {
-	ad.QueryRow("INSERT into userAds (userID, videoID, timestamp) VALUES (?,?,?);", userData.UserID, userData.VideoID, time.Now().Format(time.RFC3339))
+	ad.QueryRow("INSERT into userAds (userID, videoID, timestamp) VALUES (?,?,?);", userData.UserID, userData.VideoID, ad.Clock.Now().Format(time.RFC3339))
 }
 
 func (ad *Ads) GetAdsViewedTodayByUser(userID string) ([]string, error) {
@@ -42,13 +44,13 @@ func (ad *Ads) GetAdsViewedTodayByUser(userID string) ([]string, error) {
 			return nil, err
 		}
 
-		entryTimestamp, err := time.Parse(time.RFC3339, timestamp)
+		entryTimestamp, err := ad.Clock.Parse(time.RFC3339, timestamp)
 
 		if err != nil {
 			return nil, err
 		}
 
-		timeNowMinusDay := time.Now().Add(-time.Hour * 24)
+		timeNowMinusDay := ad.Clock.Now().Add(-time.Hour * 24)
 
 		if entryTimestamp.After(timeNowMinusDay) {
 			videoIDs = append(videoIDs, videoID)
