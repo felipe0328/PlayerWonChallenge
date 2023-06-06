@@ -57,8 +57,9 @@ func (t *PostAdsTestSuite) Test_GetAd_Success() {
 	t.endpoint.GetAd(c)
 
 	var response models.AdResponse
-	json.Unmarshal(writer.Body.Bytes(), &response)
+	err := json.Unmarshal(writer.Body.Bytes(), &response)
 
+	t.Nil(err)
 	t.Equal(http.StatusOK, writer.Code)
 	t.Equal(obtainedAd, response)
 	t.controller.AssertNumberOfCalls(t.T(), "ObtainNewAd", 1)

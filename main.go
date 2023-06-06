@@ -18,7 +18,10 @@ func main() {
 	db := initializeEndpoints(r)
 	defer db.Close()
 
-	r.Run()
+	err := r.Run()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func initializeEndpoints(r *gin.Engine) *sql.DB {
