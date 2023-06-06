@@ -16,10 +16,10 @@ This project uses an in memorySQLDB to avoid the need of implementing a DB.
 
 
 ## Paths
-| Request Type  | Endpoint  | Description                   |
-|--             |--         |--                             |
-| GET           | `/docs/`  | Project swagger documentation |
-| POST          | `/ads`    | Receive a new video           |
+| Request Type  | Endpoint              | Description                   |
+|--             |--                     |--                             |
+| GET           | `/docs/index.html`    | Project swagger documentation |
+| POST          | `/ads`                | Receive a new video           |
 
 
 ## Project Commands
