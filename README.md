@@ -24,6 +24,8 @@ Each one of the modules execute an especific function:
 * AdService: Get Ads from the PlayerWon Server.
 * Clock: Get Current Time and parse the time from string to a time object.
 
+Each layer should conects with another using interfaces.
+
 ## Paths
 | Request Type | Endpoint | Description |
 |:-- |:-- |:-- |
