@@ -10,7 +10,7 @@ import (
 )
 
 type PostAds struct {
-	controller ads.IAdsController
+	Controller ads.IAdsController
 }
 
 // @Summary		Receive Ad
@@ -26,10 +26,11 @@ type PostAds struct {
 func (endpoint *PostAds) GetAd(c *gin.Context) {
 	var requestAd models.RequestAd
 	if err := c.ShouldBindJSON(&requestAd); err != nil {
-		c.AbortWithError(http.StatusBadRequest, utils.AdRequestInvalid)
+		c.String(http.StatusBadRequest, utils.AdRequestInvalid.Error())
+		return
 	}
 
-	adData, err := endpoint.controller.ObtainNewAd(requestAd)
+	adData, err := endpoint.Controller.ObtainNewAd(requestAd)
 
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())

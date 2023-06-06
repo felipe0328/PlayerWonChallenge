@@ -27,7 +27,7 @@ func Routes(r *gin.Engine, db *sql.DB) {
 	}
 
 	// EndpointImplementation
-	adsPost := PostAds{controller: adsController}
+	adsPost := PostAds{Controller: adsController}
 
 	///// Endpoints
 	r.POST("/ads", adsPost.GetAd)

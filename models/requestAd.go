@@ -1,7 +1,7 @@
 package models
 
 type RequestAd struct {
-	UserID      string
-	Language    string
-	CountryCode string
+	UserID      string `binding:"required"`
+	Language    string `binding:"required"`
+	CountryCode string `binding:"required"`
 }
